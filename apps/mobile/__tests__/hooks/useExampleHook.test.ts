@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from '@testing-library/react-hooks'
+import { renderHook, waitFor } from '@testing-library/react'
 import { describe, test, expect } from '@jest/globals'
-import useExampleHook from '../../../src/hooks/useExampleHook.js'
+import useExampleHook from '../../src/hooks/useExampleHook.js'
 
 describe('useExampleHook', () => {
   test('returns expected values', async () => {

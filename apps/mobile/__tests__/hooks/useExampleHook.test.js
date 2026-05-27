@@ -1,5 +1,5 @@
-import { renderHook, waitFor } from '@testing-library/react-hooks'
-import useExampleHook from '../../../src/hooks/useExampleHook.js'
+import { renderHook, waitFor } from '@testing-library/react'
+import useExampleHook from '../../src/hooks/useExampleHook.js'
 
 describe('useExampleHook', () => {
   test('returns expected values', async () => {

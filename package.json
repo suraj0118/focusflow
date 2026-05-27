@@ -12,6 +12,7 @@
     "dev:server": "npm run dev -w @focusflow/server",
     "dev:web": "vite --host 0.0.0.0",
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:web\"",
+    "build": "vite build",
     "test:server": "npm run test -w @focusflow/server",
     "test:web": "npm run test -w @focusflow/web",
     "test:mobile": "npm run test -w @focusflow/mobile",
