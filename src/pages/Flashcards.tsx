@@ -37,7 +37,7 @@ export default function Flashcards() {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <BookOpen className="w-16 h-16 text-text-dim mb-4" />
-        <h2 className="text-xl font-semibold text-white mb-2">No Flashcards Yet</h2>
+        <h2 className="text-xl font-semibold text-[color:var(--text)] mb-2">No Flashcards Yet</h2>
         <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> Add Flashcard</button>
       </div>
     )
@@ -47,11 +47,11 @@ export default function Flashcards() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Flashcards</h1>
+          <h1 className="text-2xl font-bold text-[color:var(--text)]">Flashcards</h1>
           <p className="text-text-dim">Review and master your concepts</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => setShowAdd(true)} className="px-4 py-2 rounded-xl bg-surface border border-border text-sm text-text-muted hover:text-white"><Plus className="w-4 h-4 inline mr-1" /> Add</button>
+          <button onClick={() => setShowAdd(true)} className="px-4 py-2 rounded-xl bg-surface border border-border text-sm text-text-muted hover:text-[color:var(--text)]"><Plus className="w-4 h-4 inline mr-1" /> Add</button>
           <button onClick={() => { setStudyMode(true); setStats({ correct: 0, incorrect: 0, total: 0 }); }} className="btn-primary flex items-center gap-2"><Brain className="w-4 h-4" /> Study</button>
         </div>
       </div>
@@ -68,12 +68,12 @@ export default function Flashcards() {
           <motion.div className="w-full h-full relative cursor-pointer" onClick={() => setIsFlipped(!isFlipped)} animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ duration: 0.6 }} style={{ transformStyle: 'preserve-3d' }}>
             <div className="absolute inset-0 glass rounded-2xl p-8 flex flex-col items-center justify-center" style={{ backfaceVisibility: 'hidden' }}>
               <Brain className="w-8 h-8 text-primary-light mb-4" />
-              <h3 className="text-xl font-semibold text-white text-center">{currentCard?.question}</h3>
+              <h3 className="text-xl font-semibold text-[color:var(--text)] text-center">{currentCard?.question}</h3>
               <p className="text-sm text-text-dim mt-4">Click to reveal</p>
             </div>
             <div className="absolute inset-0 glass rounded-2xl p-8 flex flex-col items-center justify-center" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
               <Sparkles className="w-8 h-8 text-secondary mb-4" />
-              <h3 className="text-lg text-white text-center">{currentCard?.answer}</h3>
+              <h3 className="text-lg text-[color:var(--text)] text-center">{currentCard?.answer}</h3>
             </div>
           </motion.div>
         </div>
@@ -97,7 +97,7 @@ export default function Flashcards() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="bg-surface border border-border rounded-2xl p-8 text-center max-w-md">
               <Trophy className="w-10 h-10 text-secondary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-4">Session Complete!</h2>
+              <h2 className="text-2xl font-bold text-[color:var(--text)] mb-4">Session Complete!</h2>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-surface-light rounded-xl p-3"><p className="text-2xl font-bold text-secondary">{stats.correct}</p><p className="text-xs text-text-dim">Correct</p></div>
                 <div className="bg-surface-light rounded-xl p-3"><p className="text-2xl font-bold text-red-400">{stats.incorrect}</p><p className="text-xs text-text-dim">Review</p></div>
@@ -113,7 +113,7 @@ export default function Flashcards() {
         {showAdd && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAdd(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-surface border border-border rounded-2xl p-6 w-full max-w-lg">
-              <h2 className="text-xl font-bold text-white mb-4">Add Flashcard</h2>
+              <h2 className="text-xl font-bold text-[color:var(--text)] mb-4">Add Flashcard</h2>
               <textarea value={newCard.question} onChange={(e) => setNewCard({ ...newCard, question: e.target.value })} placeholder="Question" rows={2} className="input-field resize-none mb-3" />
               <textarea value={newCard.answer} onChange={(e) => setNewCard({ ...newCard, answer: e.target.value })} placeholder="Answer" rows={2} className="input-field resize-none mb-3" />
               <div className="flex gap-3">

@@ -1,47 +1,41 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect } from 'react'
-import { useStore } from './store/useStore'
-import { demoUser, demoTasks, demoSessions, demoStudyGroups, demoFlashcards, demoNotifications } from './data/demoData'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import FocusRoom from './pages/FocusRoom'
 import Tasks from './pages/Tasks'
-import AIAssistant from './pages/AIAssistant'
 import StudyGroups from './pages/StudyGroups'
 import Analytics from './pages/Analytics'
 import Flashcards from './pages/Flashcards'
-import Login from './pages/Login'
+import Profile from './pages/profile/Profile'
+import AuthLanding from './pages/auth/AuthLanding'
+import Login from './pages/auth/Login'
+import Signup from './pages/auth/Signup'
+import { useAuth } from './context/AuthContext'
+import RequireAuth from './components/RequireAuth'
 
-function App() {
-  const { isAuthenticated, login, addTask, addSession, addStudyGroup, addFlashcard, addNotification } = useStore()
+export default function App() {
+  const { loading } = useAuth()
 
-  useEffect(() => {
-    const hasLoaded = localStorage.getItem('focusflow-demo-loaded')
-    if (!hasLoaded) {
-      login(demoUser)
-      demoTasks.forEach(addTask)
-      demoSessions.forEach(addSession)
-      demoStudyGroups.forEach(addStudyGroup)
-      demoFlashcards.forEach(addFlashcard)
-      demoNotifications.forEach(addNotification)
-      localStorage.setItem('focusflow-demo-loaded', 'true')
-    }
-  }, [])
+  if (loading) return null
 
   return (
     <Routes>
-      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-      <Route path="/" element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
+      <Route path="/" element={<AuthLanding />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      <Route path="/dashboard" element={<RequireAuth><Layout /></RequireAuth>}>
         <Route index element={<Dashboard />} />
         <Route path="focus" element={<FocusRoom />} />
         <Route path="tasks" element={<Tasks />} />
-        <Route path="ai-assistant" element={<AIAssistant />} />
+        {/* AI Assistant removed */}
         <Route path="study-groups" element={<StudyGroups />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="flashcards" element={<Flashcards />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )
 }
-
-export default App

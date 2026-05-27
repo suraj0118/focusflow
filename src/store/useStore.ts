@@ -7,6 +7,7 @@ interface AppState {
   isAuthenticated: boolean
   login: (user: User) => void
   logout: () => void
+  updateUser: (updates: Partial<User>) => void
   tasks: Task[]
   addTask: (task: Task) => void
   updateTask: (id: string, updates: Partial<Task>) => void
@@ -44,6 +45,7 @@ export const useStore = create<AppState>()(
       isAuthenticated: false,
       login: (user) => set({ user, isAuthenticated: true }),
       logout: () => set({ user: null, isAuthenticated: false }),
+      updateUser: (updates) => set((state) => ({ user: state.user ? { ...state.user, ...updates } : state.user })),
       tasks: [],
       addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
       updateTask: (id, updates) => set((state) => ({ tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...updates } : t)) })),
@@ -75,7 +77,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: 'focusflow-storage',
-      partialize: (state) => ({
+        partialize: (state) => ({
         user: state.user,
         tasks: state.tasks,
         sessions: state.sessions,

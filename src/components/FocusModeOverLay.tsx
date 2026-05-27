@@ -31,13 +31,13 @@ export default function FocusModeOverlay() {
             strokeDashoffset={`${2 * Math.PI * 130 * (1 - ((25 * 60 - timeLeft) / (25 * 60)))}`} />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-6xl font-mono font-bold text-white">{formatTime(timeLeft)}</span>
+          <span className="text-6xl font-mono font-bold text-[color:var(--text)]">{formatTime(timeLeft)}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-6">
         <button onClick={() => { setTimeLeft(25 * 60); setIsRunning(false); }} className="p-3 rounded-full bg-surface border border-border"><RotateCcw className="w-5 h-5" /></button>
-        <button onClick={() => setIsRunning(!isRunning)} className={`p-6 rounded-full text-white ${isRunning ? 'bg-red-500' : 'gradient-primary'}`}>
+        <button onClick={() => setIsRunning(!isRunning)} className={`p-6 rounded-full text-[color:var(--text)] ${isRunning ? 'bg-red-500' : 'gradient-primary'}`}>
           {isRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
         </button>
       </div>

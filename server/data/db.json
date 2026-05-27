@@ -1,0 +1,19 @@
+{
+  "conversations": {
+    "conv:debug@local": [
+      {
+        "role": "user",
+        "text": "Explain Newton's second law simply.",
+        "createdAt": "2026-05-27T13:32:15.874Z"
+      },
+      {
+        "role": "assistant",
+        "text": "Focus AI (fallback): Newton's second law states that force equals mass times acceleration (F = m * a). In simple terms: the acceleration of an object depends on the net force acting on it and its mass. Example: pushing a shopping cart harder (more force) makes it speed up more; pushing two carts tied together (more mass) gives less acceleration for same force. Summary: F = m·a. Practice: If a 2 kg object accelerates at 3 m/s², what's the force? (Answer: 6 N).",
+        "createdAt": "2026-05-27T13:32:16.522Z"
+      }
+    ]
+  },
+  "groups": {},
+  "tasks": {},
+  "sessions": []
+}

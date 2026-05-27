@@ -5,18 +5,10 @@ import { Zap, Clock, CheckCircle2, Target, Flame, BookOpen, Users, TrendingUp } 
 import { formatDuration, getGreeting } from '../lib/utils'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-const weeklyData = [
-  { day: 'Mon', minutes: 120, tasks: 4 },
-  { day: 'Tue', minutes: 180, tasks: 6 },
-  { day: 'Wed', minutes: 90, tasks: 3 },
-  { day: 'Thu', minutes: 240, tasks: 8 },
-  { day: 'Fri', minutes: 150, tasks: 5 },
-  { day: 'Sat', minutes: 200, tasks: 7 },
-  { day: 'Sun', minutes: 160, tasks: 5 },
-]
+// weeklyData derived from sessions for last 7 days
 
 export default function Dashboard() {
-  const { user, tasks, sessions, studyGroups, flashcards, toggleFocusMode, setFocusSubject } = useStore()
+  const { user, tasks, sessions, studyGroups, flashcards, toggleFocusMode, setFocusSubject, completeTask } = useStore()
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
@@ -31,22 +23,36 @@ export default function Dashboard() {
     return sessionDate === new Date().toDateString() && s.type !== 'short-break' && s.type !== 'long-break'
   })
 
-  const totalFocusMinutes = todaySessions.reduce((acc, s) => acc + s.duration, 0)
+  const totalFocusMinutes = todaySessions.reduce((acc, s) => acc + (s.duration || 0), 0)
+
+  const getLast7Days = () => {
+    const out = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const key = d.toISOString().slice(0, 10)
+      const daySessions = sessions.filter((s) => s.startedAt && s.startedAt.startsWith(key))
+      out.push({ day: d.toLocaleDateString(undefined, { weekday: 'short' }), minutes: daySessions.reduce((sum, s) => sum + (s.duration || 0), 0), tasks: daySessions.length })
+    }
+    return out
+  }
+  const weeklyData = getLast7Days()
 
   return (
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-surface to-surface border border-primary/20 p-8">
         <div className="relative z-10">
           <p className="text-text-dim text-sm mb-1">{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-          <h1 className="text-3xl font-bold text-white mb-2">{getGreeting()}, {user?.name.split(' ')[0]}! 🔥</h1>
+          <h1 className="text-3xl font-bold text-[color:var(--text)] mb-2">{getGreeting()}, {user?.name.split(' ')[0]}! 🔥</h1>
           <p className="text-text-muted">You have <span className="text-primary-light font-semibold">{pendingTasks.length}</span> tasks pending</p>
           
           <div className="flex gap-3 mt-6">
             {['Database', 'React', 'Algorithms', 'Programming'].map((subject) => (
-              <button key={subject} onClick={() => { setFocusSubject(subject); toggleFocusMode(); }} className="px-4 py-2 rounded-xl bg-surface/80 border border-border hover:border-primary/30 text-sm font-medium text-text-muted hover:text-white flex items-center gap-2">
+              <button key={subject} onClick={() => { setFocusSubject(subject); toggleFocusMode(); }} className="px-4 py-2 rounded-xl bg-surface/80 border border-border hover:border-primary/30 text-sm font-medium text-text-muted hover:text-[color:var(--text)] flex items-center gap-2">
                 <Zap className="w-4 h-4" /> {subject}
               </button>
             ))}
+            <button onClick={() => { setFocusSubject('General'); toggleFocusMode(); }} className="ml-auto px-4 py-2 rounded-xl btn-primary text-sm font-medium">Start Focus Session</button>
           </div>
         </div>
       </div>
@@ -55,12 +61,12 @@ export default function Dashboard() {
         {[
           { label: "Today's Focus", value: formatDuration(totalFocusMinutes), icon: Clock, color: 'text-primary-light', bg: 'bg-primary/10' },
           { label: 'Tasks Completed', value: `${completedTasks.length}/${tasks.length}`, icon: CheckCircle2, color: 'text-secondary', bg: 'bg-secondary/10' },
-          { label: 'Focus Score', value: '87', icon: Target, color: 'text-accent', bg: 'bg-accent/10' },
+          { label: 'Focus Score', value: `${user?.focusScore ?? 0}`, icon: Target, color: 'text-accent', bg: 'bg-accent/10' },
           { label: 'Current Streak', value: `${user?.streak || 0} days`, icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10' },
         ].map((stat) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-5 card-hover">
             <div className={`p-2.5 rounded-xl ${stat.bg} w-fit mb-3`}><stat.icon className={`w-5 h-5 ${stat.color}`} /></div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-[color:var(--text)]">{stat.value}</p>
             <p className="text-sm text-text-dim mt-1">{stat.label}</p>
           </motion.div>
         ))}
@@ -68,7 +74,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="lg:col-span-2 glass rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Weekly Focus Trend</h2>
+          <h2 className="text-lg font-semibold text-[color:var(--text)] mb-4">Weekly Focus Trend</h2>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={weeklyData}>
               <defs>
@@ -84,14 +90,18 @@ export default function Dashboard() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Upcoming Tasks</h2>
+          <h2 className="text-lg font-semibold text-[color:var(--text)] mb-4">Upcoming Tasks</h2>
           <div className="space-y-3">
             {pendingTasks.slice(0, 4).map((task) => (
               <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl bg-surface-light/50">
                 <div className="w-1 h-10 rounded-full bg-primary" />
                 <div className="flex-1">
-                  <p className="font-medium text-sm text-white">{task.title}</p>
+                  <p className="font-medium text-sm text-[color:var(--text)]">{task.title}</p>
                   <p className="text-xs text-text-dim">{task.subject} • {formatDuration(task.estimatedMinutes || 0)}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => { setFocusSubject(task.subject); toggleFocusMode(); }} className="px-3 py-2 rounded-lg bg-surface hover:bg-surface-light text-sm">Start</button>
+                  <button onClick={() => completeTask(task.id)} className="px-3 py-2 rounded-lg bg-success text-white text-sm">Complete</button>
                 </div>
               </div>
             ))}

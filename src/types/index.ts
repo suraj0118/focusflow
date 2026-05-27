@@ -2,7 +2,11 @@ export interface User {
   id: string
   email: string
   name: string
-  avatar?: string
+  avatar?: string | null
+  username?: string
+  bio?: string
+  studyGoals?: string
+  dailyFocusTarget?: number
   focusScore: number
   streak: number
   createdAt: string

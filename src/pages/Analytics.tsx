@@ -2,53 +2,54 @@ import { motion } from 'framer-motion'
 import { useStore } from '../store/useStore'
 import { Clock, Target, Zap, Flame } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
-
-const weeklyData = [
-  { day: 'Mon', focus: 120, score: 85 },
-  { day: 'Tue', focus: 180, score: 92 },
-  { day: 'Wed', focus: 90, score: 78 },
-  { day: 'Thu', focus: 240, score: 95 },
-  { day: 'Fri', focus: 150, score: 88 },
-  { day: 'Sat', focus: 200, score: 90 },
-  { day: 'Sun', focus: 160, score: 87 },
-]
-
-const hourlyData = [
-  { hour: '6AM', productivity: 60 }, { hour: '8AM', productivity: 90 },
-  { hour: '10AM', productivity: 100 }, { hour: '12PM', productivity: 70 },
-  { hour: '2PM', productivity: 85 }, { hour: '4PM', productivity: 80 },
-  { hour: '6PM', productivity: 70 }, { hour: '8PM', productivity: 55 },
-]
+import { useEffect, useState } from 'react'
 
 export default function Analytics() {
   const { user } = useStore()
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState({ totalFocusMinutes: 0, tasksCompleted: 0, avgFocusScore: 0, streak: 0, weekly: [] })
+
+  useEffect(() => {
+    if (!user?.email) return
+    setLoading(true)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/analytics?email=${encodeURIComponent(user.email)}`)
+      .then((r) => r.json())
+      .then((json) => setData(json))
+      .catch(() => setData({ totalFocusMinutes: 0, tasksCompleted: 0, avgFocusScore: 0, streak: 0, weekly: [] }))
+      .finally(() => setLoading(false))
+  }, [user?.email])
+
+  const stats = [
+    { label: 'Total Focus Time', value: `${Math.floor(data.totalFocusMinutes / 60)}h ${data.totalFocusMinutes % 60}m`, icon: Clock, color: 'text-primary-light' },
+    { label: 'Tasks Completed', value: `${data.tasksCompleted}`, icon: Target, color: 'text-secondary' },
+    { label: 'Avg Focus Score', value: `${data.avgFocusScore}`, icon: Zap, color: 'text-accent' },
+    { label: 'Current Streak', value: `${data.streak} days`, icon: Flame, color: 'text-orange-400' },
+  ]
+
+  const weeklyData = data.weekly || []
+  const hourlyData = [] // keep empty for now; could be added from sessions
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Analytics</h1>
+          <h1 className="text-2xl font-bold text-[color:var(--text)]">Analytics</h1>
           <p className="text-text-dim">Track your productivity and study patterns</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Focus Time', value: '47h 32m', change: '+12%', icon: Clock, color: 'text-primary-light' },
-          { label: 'Tasks Completed', value: '156', change: '+8%', icon: Target, color: 'text-secondary' },
-          { label: 'Avg Focus Score', value: '87.5', change: '+3.2%', icon: Zap, color: 'text-accent' },
-          { label: 'Current Streak', value: `${user?.streak || 0} days`, change: '🔥', icon: Flame, color: 'text-orange-400' },
-        ].map((stat) => (
+        {stats.map((stat) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-5 card-hover">
             <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-2xl font-bold text-[color:var(--text)]">{loading ? '—' : stat.value}</p>
             <p className="text-sm text-text-dim mt-1">{stat.label}</p>
           </motion.div>
         ))}
       </div>
 
       <div className="glass rounded-2xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Weekly Focus Trend</h2>
+        <h2 className="text-lg font-semibold text-[color:var(--text)] mb-4">Weekly Focus Trend</h2>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={weeklyData}>
             <defs><linearGradient id="c1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366F1" stopOpacity={0.3}/><stop offset="95%" stopColor="#6366F1" stopOpacity={0}/></linearGradient></defs>
@@ -62,7 +63,7 @@ export default function Analytics() {
       </div>
 
       <div className="glass rounded-2xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Peak Productivity Hours</h2>
+        <h2 className="text-lg font-semibold text-[color:var(--text)] mb-4">Peak Productivity Hours</h2>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={hourlyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />

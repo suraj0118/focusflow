@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import Avatar from './Avatar'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
 import {
@@ -14,13 +15,12 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/focus', icon: Timer, label: 'Focus Room' },
-  { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
-  { path: '/ai-assistant', icon: Sparkles, label: 'AI Assistant' },
-  { path: '/study-groups', icon: Users, label: 'Study Groups' },
-  { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-  { path: '/flashcards', icon: BookOpen, label: 'Flashcards' },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/dashboard/focus', icon: Timer, label: 'Focus Room' },
+  { path: '/dashboard/tasks', icon: CheckSquare, label: 'Tasks' },
+  { path: '/dashboard/study-groups', icon: Users, label: 'Study Groups' },
+  { path: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
+  { path: '/dashboard/flashcards', icon: BookOpen, label: 'Flashcards' },
 ]
 
 export default function Sidebar() {
@@ -38,10 +38,10 @@ export default function Sidebar() {
         >
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+              <Zap className="w-5 h-5 text-[color:var(--text)]" />
             </div>
             <div>
-              <h1 className="font-bold text-lg text-white">FocusFlow</h1>
+              <h1 className="font-bold text-lg text-[color:var(--text)]">FocusFlow</h1>
               <p className="text-xs text-text-dim">AI Productivity</p>
             </div>
           </div>
@@ -52,7 +52,7 @@ export default function Sidebar() {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-primary/15 text-primary-light border border-primary/20' : 'text-text-muted hover:bg-surface-light hover:text-text'}`
+                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-primary/10 text-text border border-primary/20' : 'text-text-dim hover:bg-surface-light hover:text-text'}`
                 }
               >
                 <item.icon className="w-5 h-5" />
@@ -62,18 +62,18 @@ export default function Sidebar() {
           </nav>
 
           {user && (
-            <div className="p-4 m-4 rounded-xl bg-surface-light border border-border">
+            <NavLink to="/dashboard/profile" className="block p-4 m-4 rounded-xl bg-surface-light border border-border hover:opacity-95">
               <div className="flex items-center gap-3">
-                <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border-2 border-primary/30" />
+                <Avatar name={user.name} src={user.avatar} size={40} />
                 <div>
-                  <p className="font-semibold text-sm text-white">{user.name}</p>
+                  <p className="font-semibold text-sm text-[color:var(--text)]">{user.name}</p>
                   <div className="flex items-center gap-2">
                     <Flame className="w-3.5 h-3.5 text-orange-400" />
                     <span className="text-xs text-orange-400">{user.streak} day streak</span>
                   </div>
                 </div>
               </div>
-            </div>
+            </NavLink>
           )}
         </motion.aside>
       )}

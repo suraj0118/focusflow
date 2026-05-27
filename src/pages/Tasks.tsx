@@ -37,7 +37,7 @@ export default function Tasks() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Tasks</h1>
+          <h1 className="text-2xl font-bold text-[color:var(--text)]">Tasks</h1>
           <p className="text-text-dim">Manage your tasks with AI-powered breakdowns</p>
         </div>
         <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2"><Plus className="w-4 h-4" /> New Task</button>
@@ -49,7 +49,7 @@ export default function Tasks() {
             <button onClick={() => completeTask(task.id)} className="mt-1 text-text-dim hover:text-secondary"><Circle className="w-5 h-5" /></button>
             <div className="flex-1">
               <div className="flex items-start justify-between">
-                <h3 className="font-medium text-white">{task.title}</h3>
+                <h3 className="font-medium text-[color:var(--text)]">{task.title}</h3>
                 <span className={`badge ${getPriorityColor(task.priority)}`}>{getPriorityLabel(task.priority)}</span>
               </div>
               <p className="text-sm text-text-dim mt-1">{task.description}</p>
@@ -63,7 +63,7 @@ export default function Tasks() {
         {showAdd && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAdd(false)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-surface border border-border rounded-2xl p-6 w-full max-w-lg">
-              <h2 className="text-xl font-bold text-white mb-4">Create New Task</h2>
+              <h2 className="text-xl font-bold text-[color:var(--text)] mb-4">Create New Task</h2>
               <input value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} placeholder="Task title" className="input-field mb-3" />
               <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} placeholder="Description" rows={2} className="input-field resize-none mb-3" />
               <div className="grid grid-cols-2 gap-3 mb-4">

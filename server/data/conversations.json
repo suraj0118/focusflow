@@ -1,0 +1,44 @@
+{
+  "__groups__": {
+    "g_mpo07nv5": {
+      "id": "g_mpo07nv5",
+      "name": "Test Group",
+      "inviteCode": "csq1fs",
+      "createdBy": "test@local",
+      "members": [
+        "test@local"
+      ],
+      "messages": [],
+      "timer": {
+        "running": true,
+        "remaining": 1500
+      },
+      "call": {
+        "active": true,
+        "participants": [
+          "focus@gmail.com"
+        ]
+      },
+      "createdAt": "2026-05-27T11:51:54.257Z"
+    },
+    "g_mpo0avwx": {
+      "id": "g_mpo0avwx",
+      "name": "11",
+      "inviteCode": "4pl6h3",
+      "createdBy": "focus@gmail.com",
+      "members": [
+        "focus@gmail.com"
+      ],
+      "messages": [],
+      "timer": {
+        "running": false,
+        "remaining": 0
+      },
+      "call": {
+        "active": false,
+        "participants": []
+      },
+      "createdAt": "2026-05-27T11:54:24.657Z"
+    }
+  }
+}
