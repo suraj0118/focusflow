@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { useStore } from '../store/useStore'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
-import FocusModeOverlay from './FocusModeOverlay'
+import FocusModeOverlay from './FocusModeOverLay'
 
 export default function Layout() {
   const { isFocusMode } = useStore()
