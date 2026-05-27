@@ -2,10 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+const appRoot = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   root: repoRoot,
@@ -16,12 +15,7 @@ export default defineConfig({
     }
   },
   css: {
-    postcss: {
-      plugins: [
-        tailwindcss({ config: path.resolve(repoRoot, 'tailwind.config.js') }),
-        autoprefixer()
-      ]
-    }
+    postcss: path.resolve(appRoot, 'postcss.config.cjs')
   },
   build: {
     outDir: path.resolve(repoRoot, 'apps/web/dist'),
