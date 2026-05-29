@@ -377,3 +377,4 @@ app.get('/analytics', async (req, res) => {
 })
 
 export { app }
+export default app
