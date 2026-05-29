@@ -27,8 +27,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return
     }
 
-    const unsubscribe = onFirebaseAuthStateChanged((fbUser) => {
+    const unsubscribe = onFirebaseAuthStateChanged(async (fbUser) => {
+      setLoading(true)
       if (fbUser) {
+        // ensure Firebase has issued an ID token before proceeding
+        try {
+          await fbUser.getIdToken()
+        } catch (e) {
+          // ignore token errors and continue — we'll still set user
+        }
         // prefer persisted store values if user previously edited profile locally
         const persisted = (useStore as any).getState().user as AppUser | null
         const u: AppUser = {
@@ -43,22 +50,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // attempt to fetch server-stored profile by email (public endpoint)
         if (fbUser.email) {
-          fetch(`http://localhost:4000/user/public?email=${encodeURIComponent(fbUser.email)}`).then((r) => {
-            if (!r.ok) return null
-            return r.json()
-          }).then((srv) => {
-            if (srv) {
+          try {
+            const r = await fetch(`http://localhost:4000/user/public?email=${encodeURIComponent(fbUser.email)}`)
+            if (r.ok) {
+              const srv = await r.json()
               const merged = { ...u, name: srv.name || u.name, avatar: srv.avatar || u.avatar }
               setUser(merged)
               login(merged)
               setLoading(false)
+              return
             }
-          }).catch(() => {
-            setUser(u)
-            login(u)
-            setLoading(false)
-          })
-          return
+          } catch (e) {
+            // ignore fetch errors
+          }
         }
         setUser(u)
         login(u)
@@ -76,7 +80,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     setLoading(true)
     try {
-      await firebaseSignIn(email, password)
+      const cred: any = await firebaseSignIn(email, password)
+
+      // ensure Firebase ID token is available before contacting backend
+      if (isFirebaseConfigured && cred?.user) {
+        try {
+          const idToken = await cred.user.getIdToken()
+          // send ID token and credentials to backend to obtain backend JWT
+          try {
+            const res = await fetch('http://localhost:4000/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` }, body: JSON.stringify({ email, password }) })
+            if (res.ok) {
+              const data = await res.json()
+              if (data?.token) localStorage.setItem('ff_jwt', data.token)
+            }
+          } catch (e) {
+            // ignore backend auth errors — app can still function with Firebase
+          }
+        } catch (e) {
+          // ignore token errors
+        }
+      }
+
       addNotification({ id: Date.now().toString(), type: 'success', title: 'Signed in', message: 'Welcome back!', read: false, createdAt: new Date().toISOString() })
       navigate('/dashboard')
     } finally {
@@ -87,7 +111,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string) => {
     setLoading(true)
     try {
-      await firebaseSignUp(email, password)
+      const cred: any = await firebaseSignUp(email, password)
+
+      if (isFirebaseConfigured && cred?.user) {
+        try {
+          const idToken = await cred.user.getIdToken()
+          try {
+            const res = await fetch('http://localhost:4000/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` }, body: JSON.stringify({ email, password }) })
+            if (res.ok) {
+              const data = await res.json()
+              if (data?.token) localStorage.setItem('ff_jwt', data.token)
+            }
+          } catch (e) {
+            // ignore backend register errors
+          }
+        } catch (e) {
+          // ignore token errors
+        }
+      }
+
       addNotification({ id: Date.now().toString(), type: 'success', title: 'Account created', message: 'Welcome to FocusFlow!', read: false, createdAt: new Date().toISOString() })
       navigate('/dashboard')
     } finally {
