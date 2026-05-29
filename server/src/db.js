@@ -1,70 +1,51 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { initializeApp, cert, getApps } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = path.join(__dirname, '..', 'data')
-const CONV_FILE = path.join(DATA_DIR, 'conversations.json')
-
-async function ensureDir() {
-  try {
-    await fs.promises.mkdir(DATA_DIR, { recursive: true })
-  } catch (e) {}
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  })
 }
 
-async function readConversations() {
-  await ensureDir()
-  try {
-    const txt = await fs.promises.readFile(CONV_FILE, 'utf8')
-    return JSON.parse(txt)
-  } catch (e) {
-    return {}
-  }
-}
-
-async function writeConversations(obj) {
-  await ensureDir()
-  await fs.promises.writeFile(CONV_FILE, JSON.stringify(obj, null, 2), 'utf8')
-}
+const db = getFirestore()
 
 export async function getConversation(id) {
-  const all = await readConversations()
-  return all[id] || []
+  const doc = await db.collection('conversations').doc(id).get()
+  return doc.exists ? doc.data().messages || [] : []
 }
 
 export async function upsertConversation(id, messages) {
-  const all = await readConversations()
-  all[id] = messages
-  await writeConversations(all)
+  await db.collection('conversations').doc(id).set({ messages })
 }
 
 export async function listConversations() {
-  const all = await readConversations()
-  return Object.keys(all)
+  const snapshot = await db.collection('conversations').get()
+  return snapshot.docs.map(doc => doc.id)
 }
 
-// Groups persistence (stored in same file under special key)
 export async function getGroups() {
-  const all = await readConversations()
-  return all.__groups__ || {}
+  const snapshot = await db.collection('groups').get()
+  const groups = {}
+  snapshot.docs.forEach(doc => { groups[doc.id] = doc.data() })
+  return groups
 }
 
 export async function upsertGroup(id, group) {
-  const all = await readConversations()
-  const groups = all.__groups__ || {}
-  groups[id] = group
-  all.__groups__ = groups
-  await writeConversations(all)
+  await db.collection('groups').doc(id).set(group)
 }
 
 export async function getGroup(id) {
-  const groups = await getGroups()
-  return groups[id] || null
+  const doc = await db.collection('groups').doc(id).get()
+  return doc.exists ? doc.data() : null
 }
 
 export async function listGroups() {
-  const groups = await getGroups()
-  return Object.values(groups)
+  const snapshot = await db.collection('groups').get()
+  return snapshot.docs.map(doc => doc.data())
 }
 
 export default { getConversation, upsertConversation, listConversations }
